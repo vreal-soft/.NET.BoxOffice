@@ -12,9 +12,16 @@ namespace BoxOffice.Core.Data.Mapper
             CreateMap<Spectacle, CreateSpectacle>().ReverseMap();
 
             CreateMap<Admin, Registration>().ReverseMap();
-            CreateMap<Client, Registration>().ReverseMap();
+            CreateMap<Admin, AdminDto>().ReverseMap();
 
+            CreateMap<Client, Registration>().ReverseMap();
             CreateMap<Client, ClientDto>().ReverseMap();
+
+            CreateMap<Ticket, TicketDto>()
+                .ForMember(x => x.ClientFullName, opt => opt.MapFrom(src => $"{src.Client.FirstName} {src.Client.LastName}"))
+                .ForMember(x => x.SpectacleName, opt => opt.MapFrom(src => src.Spectacle.Name))
+                .ForMember(x => x.SpectacleStartTime, opt => opt.MapFrom(src => src.Spectacle.StartTime))
+                .ForMember(x => x.SpectacleEndTime, opt => opt.MapFrom(src => src.Spectacle.EndTime));
         }
     }
 }

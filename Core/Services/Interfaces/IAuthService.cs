@@ -7,5 +7,7 @@ namespace BoxOffice.Core.Services.Interfaces
     {
         Task<Token> ClientLogin(Login model);
         Task<ClientDto> ClientRegistration(Registration model);
+        Task<AdminDto> AdminRegistration(Registration model);
+        Task<Token> AdminLogin(Login model);
     }
 }

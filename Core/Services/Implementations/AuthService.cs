@@ -35,7 +35,7 @@ namespace BoxOffice.Core.Services.Implementations
             var result = _context.Clients.Add(newClient);
             _context.SaveChanges();
 
-            return Task.FromResult(_mapper.Map<ClientDto>(result));
+            return Task.FromResult(_mapper.Map<ClientDto>(result.Entity));
         }
 
         public async Task<Token> ClientLogin(Login model)
@@ -48,6 +48,35 @@ namespace BoxOffice.Core.Services.Implementations
                             new Claim(ClaimTypes.NameIdentifier, client.Id.ToString()),
                             new Claim(ClaimTypes.Email, client.Email),
                             new Claim(ClaimTypes.Role, "Client"),
+                        };
+            return await _tokenProvider.CreateTokensAsync(claims);
+        }
+
+        public Task<AdminDto> AdminRegistration(Registration model)
+        {
+            model.Email = model.Email.ToLower();
+            var admin = _context.Admins.FirstOrDefault(x => x.Email == model.Email);
+            if (admin != null)
+                throw new AppException("Admin already registered.");
+
+            var newAdmin = _mapper.Map<Admin>(model);
+            newAdmin.Hash = PasswordManager.HashPassword(model.Password);
+            var result = _context.Admins.Add(newAdmin);
+            _context.SaveChanges();
+
+            return Task.FromResult(_mapper.Map<AdminDto>(result.Entity));
+        }
+
+        public async Task<Token> AdminLogin(Login model)
+        {
+            var admin = _context.Admins.FirstOrDefault(x => x.Email == model.Email);
+            if (admin == null || !PasswordManager.VerifyPassword(model.Password, admin.Hash))
+                throw new AppException("Invalid login or password.");
+            var claims = new Claim[]
+                        {
+                            new Claim(ClaimTypes.NameIdentifier, admin.Id.ToString()),
+                            new Claim(ClaimTypes.Email, admin.Email),
+                            new Claim(ClaimTypes.Role, "Admin"),
                         };
             return await _tokenProvider.CreateTokensAsync(claims);
         }

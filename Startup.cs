@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Sieve.Services;
 using System;
 using System.Text;
 
@@ -34,8 +35,10 @@ namespace BoxOffice
             services.AddAutoMapper(typeof(MappingEntity));
             services.AddHttpContextAccessor();
 
+            services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();
+            services.AddScoped<ITicketService, TicketService>();
             services.AddSingleton<TokenProvider>();
 
             services.AddControllers()

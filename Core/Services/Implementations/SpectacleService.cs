@@ -29,11 +29,21 @@ namespace BoxOffice.Core.Services.Implementations
         {
             var data = _mapper.Map<Spectacle>(model);
             data.AdminId = GetCurrentAdminId();
-            if (data.StartTime > data.EndTime)
+            bool IsTimeBusy = _context.Spectacles.Any(x =>
+                (x.StartTime <= data.StartTime && x.EndTime >= data.StartTime) ||
+                (x.StartTime <= data.EndTime && x.EndTime >= data.EndTime) ||
+                (data.StartTime <= x.StartTime && data.EndTime >= x.EndTime));
+
+            if (data.StartTime <= 0 || data.EndTime <= 0 || data.StartTime >= data.EndTime)
                 throw new AppException("The time is incorrect.");
+            else if (IsTimeBusy)
+                throw new AppException("This time is busy.");
+            else if (data.TotalTicket <= 0)
+                throw new AppException("The problem is with the number of tickets.");
+
             var result = _context.Spectacles.Add(data);
             _context.SaveChanges();
-            return Task.FromResult(_mapper.Map<SpectacleDto>(result));
+            return Task.FromResult(_mapper.Map<SpectacleDto>(result.Entity));
         }
 
         public Task<IList<SpectacleDto>> GetAll()
@@ -68,26 +78,31 @@ namespace BoxOffice.Core.Services.Implementations
 
             data = _mapper.Map(model, data);
 
-            if (data.StartTime > data.EndTime)
+            if (data.StartTime <= 0 || data.EndTime <= 0 || data.StartTime > data.EndTime)
                 throw new AppException("The time is incorrect.");
-            else if (data.TotalTicket < data.Tickets.Count)
+            else if (data.TotalTicket <= 0 || data.TotalTicket < data.Tickets.Count)
                 throw new AppException("The problem is with the number of tickets.");
 
             var result = _context.Spectacles.Update(data);
             _context.SaveChanges();
-            return Task.FromResult(_mapper.Map<SpectacleDto>(result));
+            return Task.FromResult(_mapper.Map<SpectacleDto>(result.Entity));
         }
 
         private int GetCurrentAdminId()
         {
-            if (_accessor.HttpContext.User.FindFirstValue(ClaimTypes.Role) != "Client")
-            {
-                if (!int.TryParse(_accessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id))
-                    throw new AppException("Invalid token data.");
+            if (_accessor.HttpContext.User.FindFirstValue(ClaimTypes.Role) != "Admin")
+                throw new AppException("Invalid role.");
 
-                return id;
-            }
-            throw new AppException("Invalid role.");
+            if (!int.TryParse(_accessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id))
+                throw new AppException("Invalid token data.");
+
+            var admin = _context.Admins.FirstOrDefault(x => x.Id == id);
+
+            if (admin == null)
+                throw new AppException("Invalid token data.");
+
+            return admin.Id;
         }
     }
 }
+

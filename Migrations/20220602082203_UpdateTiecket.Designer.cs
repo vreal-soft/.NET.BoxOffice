@@ -9,8 +9,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoxOffice.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220601141843_Initial")]
-    partial class Initial
+    [Migration("20220602082203_UpdateTiecket")]
+    partial class UpdateTiecket
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -41,6 +41,9 @@ namespace BoxOffice.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.ToTable("Admins");
                 });
 
@@ -64,6 +67,9 @@ namespace BoxOffice.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("Clients");
                 });
@@ -108,6 +114,9 @@ namespace BoxOffice.Migrations
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<int>("ClientId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Seat")
                         .HasColumnType("integer");
 
                     b.Property<int>("SpectacleId")

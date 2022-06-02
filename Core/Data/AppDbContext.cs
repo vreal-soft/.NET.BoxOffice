@@ -15,11 +15,12 @@ namespace BoxOffice.Core.Data
         public DbSet<Spectacle> Spectacles { get; set; }
         public DbSet<Ticket> Tickets { get; set; }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    //modelBuilder.Entity<Url>().HasIndex(x => x.Key).IsUnique();
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Client>().HasIndex(x => x.Email).IsUnique();
+            modelBuilder.Entity<Admin>().HasIndex(x => x.Email).IsUnique();
 
-        //    base.OnModelCreating(modelBuilder);
-        //}
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

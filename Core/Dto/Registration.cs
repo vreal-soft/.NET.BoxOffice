@@ -4,7 +4,8 @@ namespace BoxOffice.Core.Dto
 {
     public class Registration
     {
-        [DataType(DataType.EmailAddress)]
+        [Required]
+        [EmailAddress]
         public string Email { get; set; }
 
         [Required]
