@@ -1,13 +1,13 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
+using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace BoxOffice.Core.Services.Implementations
@@ -16,13 +16,11 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _accessor;
 
-        public TicketService(AppDbContext context, IMapper mapper, IHttpContextAccessor accessor)
+        public TicketService(AppDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _accessor = accessor;
         }
 
         public Task<FreePlace> GetFreePlaces(int spectacleId)
@@ -35,51 +33,36 @@ namespace BoxOffice.Core.Services.Implementations
                 return Task.FromResult(new FreePlace());
 
             var soldTickets = spectacle.Tickets.Select(x => x.Seat).ToArray();
-            FreePlace freePlace = new FreePlace();
-            freePlace.Seats = new List<int>();
-
-            for (int i = 1; i <= spectacle.TotalTicket; i++)
-            {
-                if (!soldTickets.Contains(i))
-                    freePlace.Seats.Add(i);
-            }
-
-            return Task.FromResult(freePlace);
+            return Task.FromResult(FindAvailablePlaces(spectacle, soldTickets));
         }
 
-        public Task<IList<TicketDto>> GetAllInClient()
+        public Task<List<TicketDto>> GetAllInClient(Client client)
         {
-            var client = GetCurrentClient();
-            var tickets = _context.Tickets.Include(x => x.Spectacle).Include(x => x.Client)
-                            .Where(x => x.ClientId == client.Id).ToList();
-            return Task.FromResult(_mapper.Map<IList<TicketDto>>(tickets));
+            var tickets = _context.Tickets.Where(x => x.ClientId == client.Id).ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList();
+            return Task.FromResult(tickets);
         }
 
-        public Task<IList<TicketDto>> GetAllInSpectacle(int spectacleId)
+        public Task<List<TicketDto>> GetAllInSpectacle(int spectacleId)
         {
-            var tickets = _context.Tickets.Include(x => x.Spectacle).Include(x => x.Client)
-                            .Where(x => x.SpectacleId == spectacleId).ToList();
-            return Task.FromResult(_mapper.Map<IList<TicketDto>>(tickets));
+            var tickets = _context.Tickets.Where(x => x.SpectacleId == spectacleId).ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList();
+            return Task.FromResult(tickets);
         }
 
-        public Task<IList<TicketDto>> GetAll()
+        public Task<List<TicketDto>> GetAll()
         {
-            return Task.FromResult(_mapper.Map<IList<TicketDto>>(
-                _context.Tickets.Include(x => x.Spectacle).Include(x => x.Client).ToList())
-                );
+            return Task.FromResult(_context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList());
         }
 
         public Task<TicketDto> GetById(int id)
         {
-            var ticket = _context.Tickets.Include(x => x.Spectacle).Include(x => x.Client).FirstOrDefault(x => x.Id == id);
+            var ticket = _context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).FirstOrDefault(x => x.Id == id);
             return Task.FromResult(_mapper.Map<TicketDto>(ticket));
         }
 
 
-        public Task<TicketDto> Buy(BuyTicket model)
+        public async Task<TicketDto> BuyAsync(BuyTicket model, Client client)
         {
             var spectacle = _context.Spectacles.Include(x => x.Tickets).FirstOrDefault(x => x.Id == model.SpectacleId);
-            var client = GetCurrentClient();
 
             if (spectacle == null)
                 throw new AppException($"Model with id {model.SpectacleId} does not exist.");
@@ -93,15 +76,14 @@ namespace BoxOffice.Core.Services.Implementations
                 Spectacle = spectacle
             };
             var result = _context.Tickets.Add(newTicket);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return Task.FromResult(_mapper.Map<TicketDto>(result.Entity));
+            return _mapper.Map<TicketDto>(result.Entity);
         }
 
-        public Task<string> Refund(int ticketId)
+        public Task<string> Refund(int ticketId, Client client)
         {
             var ticket = _context.Tickets.FirstOrDefault(x => x.Id == ticketId);
-            var client = GetCurrentClient();
             if (ticket.ClientId != client.Id)
                 throw new AppException($"Model with id {ticketId} does not exist.");
 
@@ -111,20 +93,17 @@ namespace BoxOffice.Core.Services.Implementations
             return Task.FromResult("The ticket has been successfully returned to the ticket office.");
         }
 
-        private Client GetCurrentClient()
+        private static FreePlace FindAvailablePlaces(Spectacle spectacle, int[] soldTickets)
         {
-            if (_accessor.HttpContext.User.FindFirstValue(ClaimTypes.Role) != "Client")
-                throw new AppException("Invalid role.");
+            FreePlace freePlace = new();
 
-            if (!int.TryParse(_accessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var id))
-                throw new AppException("Invalid token data.");
+            for (int i = 1; i <= spectacle.TotalTicket; i++)
+            {
+                if (!soldTickets.Contains(i))
+                    freePlace.Seats.Add(i);
+            }
 
-            var client = _context.Clients.FirstOrDefault(x => x.Id == id);
-
-            if (client == null)
-                throw new AppException("Invalid token data.");
-
-            return client;
+            return freePlace;
         }
     }
 }

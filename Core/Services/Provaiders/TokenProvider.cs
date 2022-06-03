@@ -1,4 +1,5 @@
 ﻿using BoxOffice.Core.Dto;
+using BoxOffice.Core.Services.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BoxOffice.Core.Services.Provaiders
 {
-    public class TokenProvider
+    public class TokenProvider : ITokenProvider
     {
         private readonly IConfiguration _config;
 

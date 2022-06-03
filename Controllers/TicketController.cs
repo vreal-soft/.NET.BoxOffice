@@ -4,163 +4,68 @@ using BoxOffice.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
 using System.Threading.Tasks;
 
 namespace BoxOffice.Controllers
 {
     [Route("api/tickets")]
     [ApiController]
-    public class TicketController : ControllerBase
+    public class TicketController : BaseController
     {
         private readonly ITicketService _service;
-        private readonly ILogger<TicketController> _logger;
 
-        public TicketController(ITicketService service, ILogger<TicketController> logger)
+        public TicketController(ITicketService service, IHttpContextAccessor accessor, AppDbContext context) : base(accessor, context)
         {
             _service = service;
-            _logger = logger;
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            try
-            {
-                return Ok(await _service.GetAll());
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.GetAll());
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            try
-            {
-                return Ok(await _service.GetById(id));
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.GetById(id));
         }
 
         [AllowAnonymous]
         [HttpGet("free-places/{spectacleId}")]
         public async Task<IActionResult> GetFreePlaces([FromRoute] int spectacleId)
         {
-            try
-            {
-                return Ok(await _service.GetFreePlaces(spectacleId));
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.GetFreePlaces(spectacleId));
         }
 
         [Authorize(Roles = "Client")]
         [HttpGet("client/all")]
         public async Task<IActionResult> GetAllInClient()
         {
-            try
-            {
-                return Ok(await _service.GetAllInClient());
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.GetAllInClient(GetCurrentClient()));
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("spectacle/{spectacleId}")]
-        public async Task<IActionResult> GetAllInSpectacle(int spectacleId)
+        public async Task<IActionResult> GetAllInSpectacle([FromRoute] int spectacleId)
         {
-            try
-            {
-                return Ok(await _service.GetAllInSpectacle(spectacleId));
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.GetAllInSpectacle(spectacleId));
         }
 
         [Authorize(Roles = "Client")]
         [HttpPost]
         public async Task<IActionResult> Buy(BuyTicket model)
         {
-            try
-            {
-                return Ok(await _service.Buy(model));
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.BuyAsync(model, GetCurrentClient()));
         }
 
         [Authorize(Roles = "Client")]
         [HttpPut("refund/{ticketId}")]
-        public async Task<IActionResult> Refund(int ticketId)
+        public async Task<IActionResult> Refund([FromRoute] int ticketId)
         {
-            try
-            {
-                return Ok(await _service.Refund(ticketId));
-            }
-            catch (AppException ex)
-            {
-                _logger.LogError(ex.Message);
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex.Message);
-                return StatusCode(StatusCodes.Status418ImATeapot, new { message = ex.Message });
-            }
+            return Ok(await _service.Refund(ticketId, GetCurrentClient()));
         }
     }
 }

@@ -19,6 +19,10 @@ namespace BoxOffice.Core.Dto
 
     public class FreePlace
     {
+        public FreePlace()
+        {
+            Seats = new List<int>();
+        }
         public IList<int> Seats { get; set; }
     }
 

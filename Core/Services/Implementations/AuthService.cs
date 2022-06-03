@@ -4,6 +4,7 @@ using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using BoxOffice.Core.Shared;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,16 +15,16 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly TokenProvider _tokenProvider;
+        private readonly ITokenProvider _tokenProvider;
 
-        public AuthService(AppDbContext context, IMapper mapper, TokenProvider tokenProvider)
+        public AuthService(AppDbContext context, IMapper mapper, ITokenProvider tokenProvider)
         {
             _context = context;
             _mapper = mapper;
             _tokenProvider = tokenProvider;
         }
 
-        public Task<ClientDto> ClientRegistration(Registration model)
+        public async Task<ClientDto> ClientRegistrationAsync(Registration model)
         {
             model.Email = model.Email.ToLower();
             var client = _context.Clients.FirstOrDefault(x => x.Email == model.Email);
@@ -33,9 +34,9 @@ namespace BoxOffice.Core.Services.Implementations
             var newClient = _mapper.Map<Client>(model);
             newClient.Hash = PasswordManager.HashPassword(model.Password);
             var result = _context.Clients.Add(newClient);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return Task.FromResult(_mapper.Map<ClientDto>(result.Entity));
+            return _mapper.Map<ClientDto>(result.Entity);
         }
 
         public async Task<Token> ClientLogin(Login model)
@@ -52,7 +53,7 @@ namespace BoxOffice.Core.Services.Implementations
             return await _tokenProvider.CreateTokensAsync(claims);
         }
 
-        public Task<AdminDto> AdminRegistration(Registration model)
+        public async Task<AdminDto> AdminRegistrationAsync(Registration model)
         {
             model.Email = model.Email.ToLower();
             var admin = _context.Admins.FirstOrDefault(x => x.Email == model.Email);
@@ -62,9 +63,9 @@ namespace BoxOffice.Core.Services.Implementations
             var newAdmin = _mapper.Map<Admin>(model);
             newAdmin.Hash = PasswordManager.HashPassword(model.Password);
             var result = _context.Admins.Add(newAdmin);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return Task.FromResult(_mapper.Map<AdminDto>(result.Entity));
+            return _mapper.Map<AdminDto>(result.Entity);
         }
 
         public async Task<Token> AdminLogin(Login model)

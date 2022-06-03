@@ -4,6 +4,11 @@ namespace BoxOffice.Core.Data.Entities
 {
     public class Spectacle
     {
+        public Spectacle()
+        {
+            Tickets = new List<Ticket>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }

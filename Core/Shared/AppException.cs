@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace BoxOffice.Core.Data
+namespace BoxOffice.Core.Shared
 {
     public class AppException : Exception
     {

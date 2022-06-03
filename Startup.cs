@@ -1,5 +1,6 @@
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Mapper;
+using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
@@ -15,6 +16,8 @@ using Microsoft.OpenApi.Models;
 using Sieve.Services;
 using System;
 using System.Text;
+using FluentValidation.AspNetCore;
+using BoxOffice.Core.Data.Validators;
 
 namespace BoxOffice
 {
@@ -33,16 +36,24 @@ namespace BoxOffice
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
             services.AddAutoMapper(typeof(MappingEntity));
+            services.AddFluentValidation(config =>
+            {
+                config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
+                config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
+            });
             services.AddHttpContextAccessor();
-
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();
             services.AddScoped<ITicketService, TicketService>();
-            services.AddSingleton<TokenProvider>();
+            services.AddSingleton<ITokenProvider, TokenProvider>();
 
             services.AddControllers()
-             .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+             .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddFluentValidation(config =>
+             {
+                 config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
+                 config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
+             }); ;
 
             services.AddAuthentication(x =>
             {
@@ -105,6 +116,7 @@ namespace BoxOffice
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoxOffice v1"));
             }
 
+            app.UseMiddleware();
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();
