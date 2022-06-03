@@ -56,6 +56,8 @@ namespace BoxOffice.Core.Services.Implementations
         public Task<TicketDto> GetById(int id)
         {
             var ticket = _context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).FirstOrDefault(x => x.Id == id);
+            if (ticket == null)
+                throw new AppException($"Model with id {id} does not exist.");
             return Task.FromResult(_mapper.Map<TicketDto>(ticket));
         }
 

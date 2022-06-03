@@ -69,7 +69,7 @@ namespace BoxOffice.Core.Services.Implementations
 
             if (data == null)
                 throw new AppException($"Model with id {model.Id} does not exist.");
-            else if (data.TotalTicket < data.Tickets.Count)
+            else if (model.TotalTicket < data.Tickets.Count)
                 throw new AppException($"You have already sold tickets for {data.Tickets.Count} seats.");
 
             data = _mapper.Map(model, data);

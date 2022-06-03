@@ -65,7 +65,7 @@ namespace BoxOffice.Controllers
         [HttpPut("refund/{ticketId}")]
         public async Task<IActionResult> Refund([FromRoute] int ticketId)
         {
-            return Ok(await _service.Refund(ticketId, GetCurrentClient()));
+            return Ok(new { result = await _service.Refund(ticketId, GetCurrentClient()) });
         }
     }
 }

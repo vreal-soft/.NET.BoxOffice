@@ -55,7 +55,7 @@ namespace BoxOffice.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remove([FromRoute] int id)
         {
-            return Ok(await _service.RemoveAsync(id));
+            return Ok(new { result = await _service.RemoveAsync(id) });
         }
     }
 }
