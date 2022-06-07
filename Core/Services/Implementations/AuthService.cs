@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
+using BoxOffice.Core.Data.Repositories.Interfaces;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
@@ -16,12 +17,14 @@ namespace BoxOffice.Core.Services.Implementations
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
         private readonly ITokenProvider _tokenProvider;
+        private readonly IAdminRepository _adminRepository;
 
-        public AuthService(AppDbContext context, IMapper mapper, ITokenProvider tokenProvider)
+        public AuthService(AppDbContext context, IMapper mapper, ITokenProvider tokenProvider, IAdminRepository adminRepository)
         {
             _context = context;
             _mapper = mapper;
             _tokenProvider = tokenProvider;
+            _adminRepository = adminRepository;
         }
 
         public async Task<ClientDto> ClientRegistrationAsync(Registration model)
@@ -62,10 +65,8 @@ namespace BoxOffice.Core.Services.Implementations
 
             var newAdmin = _mapper.Map<Admin>(model);
             newAdmin.Hash = PasswordManager.HashPassword(model.Password);
-            var result = _context.Admins.Add(newAdmin);
-            await _context.SaveChangesAsync();
 
-            return _mapper.Map<AdminDto>(result.Entity);
+            return _mapper.Map<AdminDto>(await _adminRepository.Create(newAdmin));
         }
 
         public async Task<Token> AdminLogin(Login model)

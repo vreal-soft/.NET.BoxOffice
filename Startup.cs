@@ -1,9 +1,13 @@
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Mapper;
+using BoxOffice.Core.Data.Repositories.Implementations;
+using BoxOffice.Core.Data.Repositories.Interfaces;
+using BoxOffice.Core.Data.Validators;
 using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,8 +20,6 @@ using Microsoft.OpenApi.Models;
 using Sieve.Services;
 using System;
 using System.Text;
-using FluentValidation.AspNetCore;
-using BoxOffice.Core.Data.Validators;
 
 namespace BoxOffice
 {
@@ -42,6 +44,10 @@ namespace BoxOffice
                 config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
             });
             services.AddHttpContextAccessor();
+
+            services.AddScoped<IAdminRepository, AdminRepository>(provider => new AdminRepository(connection));
+            services.AddScoped<ISpectacleRepository, SpectacleRepository>(provider => new SpectacleRepository(connection));
+            services.AddScoped<ITicketRepositoty, TicketRepositoty>(provider => new TicketRepositoty(connection));
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();

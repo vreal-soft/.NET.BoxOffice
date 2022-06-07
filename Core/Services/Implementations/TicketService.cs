@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
+using BoxOffice.Core.Data.Repositories.Interfaces;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
@@ -16,11 +17,13 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ITicketRepositoty _ticketRepositoty;
 
-        public TicketService(AppDbContext context, IMapper mapper)
+        public TicketService(AppDbContext context, IMapper mapper, ITicketRepositoty ticketRepositoty)
         {
             _context = context;
             _mapper = mapper;
+            _ticketRepositoty = ticketRepositoty;
         }
 
         public Task<FreePlace> GetFreePlaces(int spectacleId)
@@ -48,17 +51,18 @@ namespace BoxOffice.Core.Services.Implementations
             return Task.FromResult(tickets);
         }
 
-        public Task<List<TicketDto>> GetAll()
+        public async Task<List<TicketDto>> GetAll()
         {
-            return Task.FromResult(_context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList());
+            var list = _ticketRepositoty.GetAll();
+            return _mapper.Map<List<TicketDto>>(list);
         }
 
-        public Task<TicketDto> GetById(int id)
+        public async Task<TicketDto> GetById(int id)
         {
-            var ticket = _context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).FirstOrDefault(x => x.Id == id);
+            var ticket = await _ticketRepositoty.GetById(id);
             if (ticket == null)
                 throw new AppException($"Model with id {id} does not exist.");
-            return Task.FromResult(_mapper.Map<TicketDto>(ticket));
+            return _mapper.Map<TicketDto>(ticket);
         }
 
 
@@ -71,16 +75,16 @@ namespace BoxOffice.Core.Services.Implementations
             else if (spectacle.Tickets.Any(x => x.Seat == model.Seat))
                 throw new AppException($"Sorry, {model.Seat} place is already taken.");
 
-            var newTicket = new Ticket()
+            Ticket newTicket = new()
             {
+                ClientId = client.Id,
                 Client = client,
                 Seat = model.Seat,
+                SpectacleId = spectacle.Id,
                 Spectacle = spectacle
             };
-            var result = _context.Tickets.Add(newTicket);
-            await _context.SaveChangesAsync();
 
-            return _mapper.Map<TicketDto>(result.Entity);
+            return _mapper.Map<TicketDto>(await _ticketRepositoty.Create(newTicket));
         }
 
         public Task<string> Refund(int ticketId, Client client)
@@ -89,8 +93,7 @@ namespace BoxOffice.Core.Services.Implementations
             if (ticket.ClientId != client.Id)
                 throw new AppException($"Model with id {ticketId} does not exist.");
 
-            _context.Tickets.Remove(ticket);
-            _context.SaveChanges();
+            _ticketRepositoty.Delete(ticketId);
 
             return Task.FromResult("The ticket has been successfully returned to the ticket office.");
         }

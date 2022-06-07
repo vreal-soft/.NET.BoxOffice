@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
+using BoxOffice.Core.Data.Repositories.Interfaces;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
@@ -15,11 +16,13 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly ISpectacleRepository _spectacleRepository;
 
-        public SpectacleService(AppDbContext context, IMapper mapper)
+        public SpectacleService(AppDbContext context, IMapper mapper, ISpectacleRepository spectacleRepository)
         {
             _context = context;
             _mapper = mapper;
+            _spectacleRepository = spectacleRepository;
         }
 
         public async Task<SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin)
@@ -34,23 +37,25 @@ namespace BoxOffice.Core.Services.Implementations
             if (IsTimeBusy)
                 throw new AppException("This time is busy.");
 
-            var result = _context.Spectacles.Add(data);
-            await _context.SaveChangesAsync();
-            return _mapper.Map<SpectacleDto>(result.Entity);
+            //var result = _context.Spectacles.Add(data);
+            //await _context.SaveChangesAsync();
+            //return _mapper.Map<SpectacleDto>(result.Entity);
+
+            return _mapper.Map<SpectacleDto>(await _spectacleRepository.Create(data));
         }
 
-        public Task<List<SpectacleDto>> GetAll()
+        public async Task<List<SpectacleDto>> GetAll()
         {
-            var result = _context.Spectacles.ToList();
-            return Task.FromResult(_mapper.Map<List<SpectacleDto>>(result));
+            var result = await _spectacleRepository.GetAll();
+            return _mapper.Map<List<SpectacleDto>>(result.ToList());
         }
 
-        public Task<SpectacleDto> GetById(int id)
+        public async Task<SpectacleDto> GetById(int id)
         {
-            var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);
+            var result = await _spectacleRepository.GetById(id);
             if (result == null)
                 throw new AppException($"Model with id {id} does not exist.");
-            return Task.FromResult(_mapper.Map<SpectacleDto>(result));
+            return _mapper.Map<SpectacleDto>(result);
         }
 
         public async Task<string> RemoveAsync(int id)
@@ -58,8 +63,7 @@ namespace BoxOffice.Core.Services.Implementations
             var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);
             if (result == null)
                 throw new AppException($"Model with id {id} does not exist.");
-            _context.Spectacles.Remove(result);
-            await _context.SaveChangesAsync();
+            await _spectacleRepository.Delete(id);
             return "The model has been removed.";
         }
 
