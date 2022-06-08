@@ -1,9 +1,9 @@
-﻿using AutoMapper;
-using BoxOffice.Core.Data;
+﻿using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +14,25 @@ namespace BoxOffice.Core.Services.Implementations
     public class SpectacleService : ISpectacleService
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
+        private static readonly TypeAdapterConfig _typeAdapterConfig = GetConfig();
 
-        public SpectacleService(AppDbContext context, IMapper mapper)
+        private readonly MapsterMapper.IMapper _mapper = new MapsterMapper.Mapper(_typeAdapterConfig);
+
+        public SpectacleService(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
-        public async Task<SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin)
+        private static TypeAdapterConfig GetConfig()
         {
-            var data = _mapper.Map<Spectacle>(model);
+            var conf = new TypeAdapterConfig();
+            //conf.NewConfig<Spectacle, SpectacleDto>();
+            return conf;
+        }
+
+        public async Task<Dto.SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin)
+        {
+            var data = model.Adapt<Spectacle>(_typeAdapterConfig);
             data.AdminId = admin.Id;
             bool IsTimeBusy = _context.Spectacles.Any(x =>
                 (x.StartTime <= data.StartTime && x.EndTime >= data.StartTime) ||
@@ -36,21 +44,22 @@ namespace BoxOffice.Core.Services.Implementations
 
             var result = _context.Spectacles.Add(data);
             await _context.SaveChangesAsync();
-            return _mapper.Map<SpectacleDto>(result.Entity);
+            return result.Entity.Adapt<Dto.SpectacleDto>();
         }
 
-        public Task<List<SpectacleDto>> GetAll()
+        public Task<List<Dto.SpectacleDto>> GetAll()
         {
             var result = _context.Spectacles.ToList();
-            return Task.FromResult(_mapper.Map<List<SpectacleDto>>(result));
+            //result.ForEach(x => x.AdaptToDto());
+            return Task.FromResult(result.Adapt<List<Dto.SpectacleDto>>());
         }
 
-        public Task<SpectacleDto> GetById(int id)
+        public Task<Data.Entities.SpectacleDto> GetById(int id)
         {
             var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);
             if (result == null)
                 throw new AppException($"Model with id {id} does not exist.");
-            return Task.FromResult(_mapper.Map<SpectacleDto>(result));
+            return Task.FromResult(result.AdaptToDto());
         }
 
         public async Task<string> RemoveAsync(int id)
@@ -63,7 +72,7 @@ namespace BoxOffice.Core.Services.Implementations
             return "The model has been removed.";
         }
 
-        public async Task<SpectacleDto> UpdateAsync(SpectacleDto model)
+        public async Task<Data.Entities.SpectacleDto> UpdateAsync(Dto.SpectacleDto model)
         {
             var data = _context.Spectacles.Include(x => x.Tickets).FirstOrDefault(x => x.Id == model.Id);
 
@@ -72,9 +81,9 @@ namespace BoxOffice.Core.Services.Implementations
             else if (model.TotalTicket < data.Tickets.Count)
                 throw new AppException($"You have already sold tickets for {data.Tickets.Count} seats.");
 
-            data = _mapper.Map(model, data);
+            data = model.Adapt<Spectacle>();
             await _context.SaveChangesAsync();
-            return _mapper.Map<SpectacleDto>(data);
+            return data.AdaptToDto();
         }
     }
 }

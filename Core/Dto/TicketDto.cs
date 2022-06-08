@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Mapster;
+using System.Collections.Generic;
 
 namespace BoxOffice.Core.Dto
 {
@@ -7,6 +8,9 @@ namespace BoxOffice.Core.Dto
         public int Id { get; set; }
 
         public int Seat { get; set; }
+
+        [AdaptIgnore]
+        public ulong SpectacleId { get; set; }
 
         public ulong SpectacleStartTime { get; set; }
 

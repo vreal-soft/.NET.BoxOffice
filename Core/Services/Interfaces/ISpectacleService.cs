@@ -7,10 +7,10 @@ namespace BoxOffice.Core.Services.Interfaces
 {
     public interface ISpectacleService
     {
-        Task<SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin);
-        Task<List<SpectacleDto>> GetAll();
-        Task<SpectacleDto> GetById(int id);
+        Task<Dto.SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin);
+        Task<List<Dto.SpectacleDto>> GetAll();
+        Task<Data.Entities.SpectacleDto> GetById(int id);
         Task<string> RemoveAsync(int id);
-        Task<SpectacleDto> UpdateAsync(SpectacleDto model);
+        Task<Data.Entities.SpectacleDto> UpdateAsync(Dto.SpectacleDto model);
     }
 }

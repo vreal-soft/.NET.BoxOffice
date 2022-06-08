@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using BoxOffice.Core.Data;
+﻿using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
 using BoxOffice.Core.Shared;
+using Mapster;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -14,13 +14,11 @@ namespace BoxOffice.Core.Services.Implementations
     public class AuthService : IAuthService
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
         private readonly ITokenProvider _tokenProvider;
 
-        public AuthService(AppDbContext context, IMapper mapper, ITokenProvider tokenProvider)
+        public AuthService(AppDbContext context, ITokenProvider tokenProvider)
         {
             _context = context;
-            _mapper = mapper;
             _tokenProvider = tokenProvider;
         }
 
@@ -31,12 +29,12 @@ namespace BoxOffice.Core.Services.Implementations
             if (client != null)
                 throw new AppException("Client already registered.");
 
-            var newClient = _mapper.Map<Client>(model);
+            var newClient = model.Adapt<Client>();
             newClient.Hash = PasswordManager.HashPassword(model.Password);
             var result = _context.Clients.Add(newClient);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<ClientDto>(result.Entity);
+            return result.Entity.Adapt<ClientDto>();
         }
 
         public async Task<Token> ClientLogin(Login model)
@@ -60,12 +58,12 @@ namespace BoxOffice.Core.Services.Implementations
             if (admin != null)
                 throw new AppException("Admin already registered.");
 
-            var newAdmin = _mapper.Map<Admin>(model);
+            var newAdmin = model.Adapt<Admin>();
             newAdmin.Hash = PasswordManager.HashPassword(model.Password);
             var result = _context.Admins.Add(newAdmin);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<AdminDto>(result.Entity);
+            return result.Entity.Adapt<AdminDto>();
         }
 
         public async Task<Token> AdminLogin(Login model)

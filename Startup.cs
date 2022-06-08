@@ -1,9 +1,12 @@
 using BoxOffice.Core.Data;
-using BoxOffice.Core.Data.Mapper;
+using BoxOffice.Core.Data.Mapster;
+using BoxOffice.Core.Data.Validators;
 using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using FluentValidation.AspNetCore;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -16,8 +19,6 @@ using Microsoft.OpenApi.Models;
 using Sieve.Services;
 using System;
 using System.Text;
-using FluentValidation.AspNetCore;
-using BoxOffice.Core.Data.Validators;
 
 namespace BoxOffice
 {
@@ -35,13 +36,17 @@ namespace BoxOffice
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
-            services.AddAutoMapper(typeof(MappingEntity));
             services.AddFluentValidation(config =>
             {
                 config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
                 config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
             });
             services.AddHttpContextAccessor();
+
+            services.AddSingleton(new EntityMapster().GlobalConfig);
+            services.AddScoped<IMapper, ServiceMapper>();
+
+
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();

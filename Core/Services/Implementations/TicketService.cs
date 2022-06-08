@@ -1,10 +1,10 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using BoxOffice.Core.Data;
+﻿using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,6 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-
         public TicketService(AppDbContext context, IMapper mapper)
         {
             _context = context;
@@ -38,27 +37,28 @@ namespace BoxOffice.Core.Services.Implementations
 
         public Task<List<TicketDto>> GetAllInClient(Client client)
         {
-            var tickets = _context.Tickets.Where(x => x.ClientId == client.Id).ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList();
-            return Task.FromResult(tickets);
+            var tickets = _context.Tickets.Where(x => x.ClientId == client.Id).ToList();
+            return Task.FromResult(_mapper.Map<List<TicketDto>>(tickets));
         }
 
         public Task<List<TicketDto>> GetAllInSpectacle(int spectacleId)
         {
-            var tickets = _context.Tickets.Where(x => x.SpectacleId == spectacleId).ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList();
-            return Task.FromResult(tickets);
+            var tickets = _context.Tickets.Include(x => x.Spectacle).Where(x => x.SpectacleId == spectacleId).ToList();
+            return Task.FromResult(_mapper.Map<List<TicketDto>>(tickets));
         }
 
         public Task<List<TicketDto>> GetAll()
         {
-            return Task.FromResult(_context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).ToList());
+            var tickets = _context.Tickets.Include(x => x.Client).Include(x => x.Spectacle).ToList();
+            return Task.FromResult(_mapper.Map<List<TicketDto>>(tickets));
         }
 
         public Task<TicketDto> GetById(int id)
         {
-            var ticket = _context.Tickets.ProjectTo<TicketDto>(_mapper.ConfigurationProvider).FirstOrDefault(x => x.Id == id);
+            var ticket = _context.Tickets.FirstOrDefault(x => x.Id == id);
             if (ticket == null)
                 throw new AppException($"Model with id {id} does not exist.");
-            return Task.FromResult(_mapper.Map<TicketDto>(ticket));
+            return Task.FromResult(ticket.Adapt<TicketDto>());
         }
 
 
@@ -80,7 +80,7 @@ namespace BoxOffice.Core.Services.Implementations
             var result = _context.Tickets.Add(newTicket);
             await _context.SaveChangesAsync();
 
-            return _mapper.Map<TicketDto>(result.Entity);
+            return result.Entity.Adapt<TicketDto>();
         }
 
         public Task<string> Refund(int ticketId, Client client)
