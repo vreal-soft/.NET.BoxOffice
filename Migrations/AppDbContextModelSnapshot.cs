@@ -85,14 +85,14 @@ namespace BoxOffice.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("EndTime")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<long>("EndTime")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("StartTime")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<long>("StartTime")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("TotalTicket")
                         .HasColumnType("bigint");

@@ -22,7 +22,9 @@ namespace BoxOffice.Core.Data.Repositories.Implementations
             var sqlQuery = "INSERT INTO public.\"Spectacles\"(\"Name\", \"Description\", \"TotalTicket\", \"StartTime\", \"EndTime\", \"AdminId\") " +
                             "VALUES(@Name, @Description, @TotalTicket, @StartTime, @EndTime, @AdminId) RETURNING \"Id\"";
 
+            model.Id = await db.QueryFirstOrDefaultAsync<int>(sqlQuery, model);
 
+            //Alternative Solution
             //NpgsqlCommand cmd = new NpgsqlCommand(sqlQuery, db);
             //db.Open();
             //cmd.Parameters.AddWithValue("Name", model.Name);
@@ -36,11 +38,8 @@ namespace BoxOffice.Core.Data.Repositories.Implementations
             //cmd.Parameters.Add(new NpgsqlParameter("EndTime", NpgsqlDbType.Numeric));
             //cmd.Parameters.Add(new NpgsqlParameter("TotalTicket", NpgsqlDbType.Bigint));
             //cmd.Parameters.Add(new NpgsqlParameter("AdminId", NpgsqlDbType.Integer));
-            //var t = await cmd.ExecuteReaderAsync();
+            //var t = await cmd.ExecuteScalarAsync();
             //db.Close();
-
-
-            model.Id = await db.QueryFirstOrDefaultAsync<int>(sqlQuery, model);
             return model;
         }
 

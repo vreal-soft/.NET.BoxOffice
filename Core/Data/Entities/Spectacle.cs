@@ -14,8 +14,8 @@ namespace BoxOffice.Core.Data.Entities
         public string Name { get; set; }
         public string Description { get; set; }
         public uint TotalTicket { get; set; }
-        public ulong StartTime { get; set; }
-        public ulong EndTime { get; set; }
+        public uint StartTime { get; set; }
+        public uint EndTime { get; set; }
 
         public int AdminId { get; set; }
         public Admin Admin { get; set; }

@@ -9,8 +9,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace BoxOffice.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220602082203_UpdateTiecket")]
-    partial class UpdateTiecket
+    [Migration("20220608073319_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -87,14 +87,14 @@ namespace BoxOffice.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("EndTime")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<long>("EndTime")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<decimal>("StartTime")
-                        .HasColumnType("numeric(20,0)");
+                    b.Property<long>("StartTime")
+                        .HasColumnType("bigint");
 
                     b.Property<long>("TotalTicket")
                         .HasColumnType("bigint");

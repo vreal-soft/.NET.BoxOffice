@@ -8,9 +8,9 @@ namespace BoxOffice.Core.Dto
 
         public int Seat { get; set; }
 
-        public ulong SpectacleStartTime { get; set; }
+        public uint SpectacleStartTime { get; set; }
 
-        public ulong SpectacleEndTime { get; set; }
+        public uint SpectacleEndTime { get; set; }
 
         public string ClientFullName { get; set; }
 

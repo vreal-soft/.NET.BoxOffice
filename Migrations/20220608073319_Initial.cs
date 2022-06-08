@@ -3,7 +3,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace BoxOffice.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -48,8 +48,8 @@ namespace BoxOffice.Migrations
                     Name = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
                     TotalTicket = table.Column<long>(type: "bigint", nullable: false),
-                    StartTime = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    EndTime = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    StartTime = table.Column<long>(type: "bigint", nullable: false),
+                    EndTime = table.Column<long>(type: "bigint", nullable: false),
                     AdminId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -69,6 +69,7 @@ namespace BoxOffice.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Seat = table.Column<int>(type: "integer", nullable: false),
                     ClientId = table.Column<int>(type: "integer", nullable: false),
                     SpectacleId = table.Column<int>(type: "integer", nullable: false)
                 },
