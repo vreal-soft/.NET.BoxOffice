@@ -13,26 +13,15 @@ namespace BoxOffice.Core.Services.Implementations
 {
     public class SpectacleService : ISpectacleService
     {
-        private readonly AppDbContext _context;
-        private static readonly TypeAdapterConfig _typeAdapterConfig = GetConfig();
-
-        private readonly MapsterMapper.IMapper _mapper = new MapsterMapper.Mapper(_typeAdapterConfig);
-
+        private readonly AppDbContext _context;        
         public SpectacleService(AppDbContext context)
         {
             _context = context;
         }
 
-        private static TypeAdapterConfig GetConfig()
-        {
-            var conf = new TypeAdapterConfig();
-            //conf.NewConfig<Spectacle, SpectacleDto>();
-            return conf;
-        }
-
         public async Task<Dto.SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin)
         {
-            var data = model.Adapt<Spectacle>(_typeAdapterConfig);
+            var data = model.Adapt<Spectacle>();
             data.AdminId = admin.Id;
             bool IsTimeBusy = _context.Spectacles.Any(x =>
                 (x.StartTime <= data.StartTime && x.EndTime >= data.StartTime) ||
@@ -50,7 +39,6 @@ namespace BoxOffice.Core.Services.Implementations
         public Task<List<Dto.SpectacleDto>> GetAll()
         {
             var result = _context.Spectacles.ToList();
-            //result.ForEach(x => x.AdaptToDto());
             return Task.FromResult(result.Adapt<List<Dto.SpectacleDto>>());
         }
 

@@ -7,6 +7,7 @@ namespace BoxOffice.Core.Data.Mapster
     public class EntityMapster
     {
         public TypeAdapterConfig GlobalConfig { get; set; }
+
         public EntityMapster()
         {
             var conf = new TypeAdapterConfig();
@@ -25,9 +26,3 @@ namespace BoxOffice.Core.Data.Mapster
         }
     }
 }
-//CreateMap<Ticket, TicketDto>()
-//              .ForMember(dto => dto.ClientFullName, conf => conf.MapFrom(src => $"{src.Client.FirstName} {src.Client.LastName}"))
-//              .ForMember(dto => dto.SpectacleName, conf => conf.MapFrom(src => src.Spectacle.Name))
-//              .ForMember(dto => dto.SpectacleStartTime, conf => conf.MapFrom(src => src.Spectacle.StartTime))
-//              .ForMember(dto => dto.SpectacleEndTime, conf => conf.MapFrom(src => src.Spectacle.EndTime))
-//              ;
