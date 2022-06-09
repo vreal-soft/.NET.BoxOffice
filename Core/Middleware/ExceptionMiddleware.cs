@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace BoxOffice.Core.Middleware
@@ -22,7 +23,13 @@ namespace BoxOffice.Core.Middleware
         public async Task Invoke(HttpContext httpContext)
         {
             try
-            {
+            {               
+                httpContext.Response.OnStarting(state => {
+                    var httpContext = (HttpContext)state;
+                    httpContext.Response.Headers.Add("Request-Id", Activity.Current?.TraceId.ToString() ?? string.Empty);
+                    return Task.CompletedTask;
+                }, httpContext);
+
                 await _next.Invoke(httpContext);
             }
             catch (AppException ex)

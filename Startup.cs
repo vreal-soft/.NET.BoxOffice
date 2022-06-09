@@ -1,9 +1,11 @@
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Mapper;
+using BoxOffice.Core.Data.Validators;
 using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -13,11 +15,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Trace;
 using Sieve.Services;
 using System;
+using System.Diagnostics;
 using System.Text;
-using FluentValidation.AspNetCore;
-using BoxOffice.Core.Data.Validators;
 
 namespace BoxOffice
 {
@@ -104,6 +106,16 @@ namespace BoxOffice
                       }
                  });
             });
+
+            services.AddOpenTelemetryTracing((builder) => builder
+                    .AddSqlClientInstrumentation(options => { 
+                            options.SetDbStatementForText = true; 
+                            options.SetDbStatementForStoredProcedure = true; 
+                            options.EnableConnectionLevelAttributes = true; })
+                    .AddConsoleExporter()
+                    .AddAspNetCoreInstrumentation()
+                    .AddJaegerExporter()
+                );
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -123,7 +135,7 @@ namespace BoxOffice
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
-            {
+            {   
                 endpoints.MapControllers();
             });
         }

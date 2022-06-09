@@ -5,7 +5,10 @@ using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry;
+using OpenTelemetry.Trace;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -41,6 +44,18 @@ namespace BoxOffice.Core.Services.Implementations
 
         public Task<List<SpectacleDto>> GetAll()
         {
+            using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+                    .AddSqlClientInstrumentation(opt => opt.Enrich = (activity, eventName, rawObject) =>
+                    {
+                        if (eventName.Equals("OnCustom"))
+                        {
+                            if (rawObject is SqlCommand cmd)
+                            {
+                                activity.SetTag("db.commandTimeout", cmd.CommandTimeout);
+                            }
+                        };
+                    })
+                    .Build();
             var result = _context.Spectacles.ToList();
             return Task.FromResult(_mapper.Map<List<SpectacleDto>>(result));
         }
