@@ -108,14 +108,30 @@ namespace BoxOffice
             });
 
             services.AddOpenTelemetryTracing((builder) => builder
-                    .AddSqlClientInstrumentation(options => { 
-                            options.SetDbStatementForText = true; 
-                            options.SetDbStatementForStoredProcedure = true; 
-                            options.EnableConnectionLevelAttributes = true; })
+                    .AddSqlClientInstrumentation(options =>
+                    {
+                        options.SetDbStatementForText = true;
+                        options.SetDbStatementForStoredProcedure = true;
+                        options.EnableConnectionLevelAttributes = true;
+                    })
                     .AddConsoleExporter()
                     .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
                     .AddJaegerExporter()
                 );
+            //services.AddOpenTelemetryTracing((builder) => builder
+            //        .AddAspNetCoreInstrumentation()
+            //        .AddHttpClientInstrumentation()
+            //        .AddOtlpExporter(otlpOptions =>
+            //        {
+            //            otlpOptions.ServiceName = Environment.GetEnvironmentVariable("LS_SERVICE_NAME");
+            //            otlpOptions.Endpoint = "ingest.lightstep.com:443";
+            //            otlpOptions.Headers = new Metadata
+            //              {
+            //                { "lightstep-access-token", Environment.GetEnvironmentVariable("LS_ACCESS_TOKEN")}
+            //              };
+            //            otlpOptions.Credentials = new SslCredentials();
+            //        }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -135,7 +151,7 @@ namespace BoxOffice
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
-            {   
+            {
                 endpoints.MapControllers();
             });
         }

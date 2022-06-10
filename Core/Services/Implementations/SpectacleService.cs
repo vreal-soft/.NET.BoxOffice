@@ -9,6 +9,7 @@ using OpenTelemetry;
 using OpenTelemetry.Trace;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -44,19 +45,30 @@ namespace BoxOffice.Core.Services.Implementations
 
         public Task<List<SpectacleDto>> GetAll()
         {
-            using var tracerProvider = Sdk.CreateTracerProviderBuilder()
-                    .AddSqlClientInstrumentation(opt => opt.Enrich = (activity, eventName, rawObject) =>
-                    {
-                        if (eventName.Equals("OnCustom"))
-                        {
-                            if (rawObject is SqlCommand cmd)
-                            {
-                                activity.SetTag("db.commandTimeout", cmd.CommandTimeout);
-                            }
-                        };
-                    })
-                    .Build();
+            //using var tracerProvider = Sdk.CreateTracerProviderBuilder()
+            //        .AddSqlClientInstrumentation(opt => opt.Enrich = (activity, eventName, rawObject) =>
+            //        {
+            //            if (eventName.Equals("OnCustom"))
+            //            {
+            //                if (rawObject is SqlCommand cmd)
+            //                {
+            //                    activity.SetTag("db.commandTimeout", cmd.CommandTimeout);
+            //                }
+            //            };
+            //        })
+            //        .Build();
+            var activitySource = new ActivitySource("SampleActivitySource");
+
+
+            using (var sampleActivity = activitySource.StartActivity("Sample", ActivityKind.Server))
+            {
+                // note that "sampleActivity" can be null here if nobody listen events generated
+                // by the "SampleActivitySource" activity source.
+                sampleActivity?.AddTag("Name", "Task<List<SpectacleDto>> GetAll");
+                sampleActivity?.AddBaggage("SampleContext", "SpectacleService : ISpectacleService");              
+            }
             var result = _context.Spectacles.ToList();
+
             return Task.FromResult(_mapper.Map<List<SpectacleDto>>(result));
         }
 
