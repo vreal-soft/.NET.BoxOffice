@@ -18,6 +18,7 @@ using System;
 using System.Text;
 using FluentValidation.AspNetCore;
 using BoxOffice.Core.Data.Validators;
+using OpenTelemetry.Trace;
 
 namespace BoxOffice
 {
@@ -76,6 +77,17 @@ namespace BoxOffice
                 };
             });
 
+            services.AddOpenTelemetryTracing(builder =>
+            {
+                builder.AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddJaegerExporter();
+            });           
+
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = Configuration.GetSection("Redis").GetValue<string>("UrlConnection"); ;
+            });
 
             services.AddSwaggerGen(c =>
             {
