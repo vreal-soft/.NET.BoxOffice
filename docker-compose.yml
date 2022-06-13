@@ -1,0 +1,64 @@
+version: '3.5'
+   
+services:
+  db:
+    image: postgres:13.3-alpine
+    environment:
+      POSTGRES_USER: 'root'
+      POSTGRES_PASSWORD: 'rooot'
+      POSTGRES_DB: 'local_db'
+      PGDATA: /data/postgres     
+    volumes:
+      - ./postgres/data:/data/postgres
+    restart: always
+    ports:
+      - 5432:5432
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 'root@pgadmin.org'
+      PGADMIN_DEFAULT_PASSWORD: 'rooot'
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+      - ./pgadmin:/root/.pgadmin
+    ports:
+        - 5050:80
+    restart: always      
+    
+  cache:
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+
+  jaeger:
+    image: jaegertracing/all-in-one
+    restart: always
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    environment:
+      - LOG_LEVEL=debug
+
+  box-office:
+    build: .
+    expose:
+      - 80
+      - 443
+    restart: always
+    volumes:
+      - ./appsettings.json:/app/appsettings.json:cached
+    depends_on:
+      - db
+      - cache
+      - jaeger
+    ports:
+      - 8080:80

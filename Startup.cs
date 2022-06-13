@@ -81,12 +81,16 @@ namespace BoxOffice
             {
                 builder.AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
-                .AddJaegerExporter();
+                .AddJaegerExporter(options =>
+                {
+                    options.Endpoint = new Uri("jaeger:14268/api/traces");
+                });
             });           
 
             services.AddStackExchangeRedisCache(options =>
             {
-                options.Configuration = Configuration.GetSection("Redis").GetValue<string>("UrlConnection"); ;
+                options.Configuration = Configuration.GetSection("Redis").GetValue<string>("UrlConnection");
+                
             });
 
             services.AddSwaggerGen(c =>
@@ -119,14 +123,15 @@ namespace BoxOffice
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, AppDbContext appDbContext)
         {
-            if (env.IsDevelopment())
-            {
+            //appDbContext.Database.Migrate();
+            //if (env.IsDevelopment())
+            //{
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BoxOffice v1"));
-            }
+            //}
 
             app.UseMiddleware();
             app.UseHttpsRedirection();

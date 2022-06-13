@@ -49,6 +49,7 @@ namespace BoxOffice.Core.Services.Implementations
 
         public async Task<List<SpectacleDto>> GetAll()
         {
+            //_context.Database.Migrate();
             var cach = await _cache.GetAsync(KEY);
 
             if (cach != null)            
