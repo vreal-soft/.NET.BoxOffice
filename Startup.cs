@@ -18,6 +18,8 @@ using System;
 using System.Text;
 using FluentValidation.AspNetCore;
 using BoxOffice.Core.Data.Validators;
+using MediatR;
+using System.Reflection;
 
 namespace BoxOffice
 {
@@ -39,9 +41,10 @@ namespace BoxOffice
             services.AddFluentValidation(config =>
             {
                 config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
-                config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
+                config.RegisterValidatorsFromAssemblyContaining<UpdateSpectacleValidator>();
             });
             services.AddHttpContextAccessor();
+            services.AddMediatR(Assembly.GetExecutingAssembly());
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();
@@ -49,11 +52,7 @@ namespace BoxOffice
             services.AddSingleton<ITokenProvider, TokenProvider>();
 
             services.AddControllers()
-             .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddFluentValidation(config =>
-             {
-                 config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
-                 config.RegisterValidatorsFromAssemblyContaining<SpectacleDtoValidator>();
-             }); ;
+             .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
             services.AddAuthentication(x =>
             {

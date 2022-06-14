@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BoxOffice.Core.Commands;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
 
@@ -9,7 +10,8 @@ namespace BoxOffice.Core.Data.Mapper
         public MappingEntity()
         {
             CreateMap<Spectacle, SpectacleDto>().ReverseMap();
-            CreateMap<Spectacle, CreateSpectacle>().ReverseMap();
+            CreateMap<Spectacle, UpdateSpectacleCommand>().ReverseMap();
+            CreateMap<Spectacle, CreateSpectacleCommand>().ReverseMap();
 
             CreateMap<Admin, Registration>().ReverseMap();
             CreateMap<Admin, AdminDto>().ReverseMap();

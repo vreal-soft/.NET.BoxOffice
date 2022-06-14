@@ -1,6 +1,9 @@
-﻿using BoxOffice.Core.Data;
+﻿using BoxOffice.Core.Commands;
+using BoxOffice.Core.Data;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.Queries;
 using BoxOffice.Core.Services.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,20 +19,20 @@ namespace BoxOffice.Controllers
     [ApiController]
     public class SpectacleController : BaseController
     {
-        private readonly ISpectacleService _service;
         private readonly SieveProcessor _sieveProcessor;
+        private readonly IMediator _mediator;
 
-        public SpectacleController(ISpectacleService service, SieveProcessor sieveProcessor, IHttpContextAccessor accessor, AppDbContext context) : base(accessor, context)
+        public SpectacleController(SieveProcessor sieveProcessor, IHttpContextAccessor accessor, AppDbContext context, IMediator mediator) : base(accessor, context)
         {
-            _service = service;
             _sieveProcessor = sieveProcessor;
+            _mediator = mediator;
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] SieveModel query)
         {
-            var result = await _service.GetAll();
+            var result = await _mediator.Send(new GetAllSpectaclesQuery());
             return Ok(new PaginatedData<SpectacleDto>(result.AsQueryable(), query, _sieveProcessor));
         }
 
@@ -37,25 +40,27 @@ namespace BoxOffice.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            return Ok(await _service.GetById(id));
+            var result = await _mediator.Send(new GetSpectacleByIdQuery(id));
+            return result == null ? NotFound() : Ok(result);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateSpectacle model)
+        public async Task<IActionResult> Create(CreateSpectacleCommand command)
         {
-            return Ok(await _service.CreateAsync(model, GetCurrentAdmin()));
+            command.admin = GetCurrentAdmin();
+            return Ok(await _mediator.Send(command));
         }
 
         [HttpPut]
-        public async Task<IActionResult> Update(SpectacleDto model)
+        public async Task<IActionResult> Update(UpdateSpectacleCommand model)
         {
-            return Ok(await _service.UpdateAsync(model));
+            return Ok(await _mediator.Send(model));
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Remove([FromRoute] int id)
         {
-            return Ok(new { result = await _service.RemoveAsync(id) });
+            return Ok(new { result = await _mediator.Send(new RemoveSpectacleCommand(id)) });
         }
     }
 }

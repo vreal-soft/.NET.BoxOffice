@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BoxOffice.Core.Commands;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
@@ -22,7 +23,7 @@ namespace BoxOffice.Core.Services.Implementations
             _mapper = mapper;
         }
 
-        public async Task<SpectacleDto> CreateAsync(CreateSpectacle model, Admin admin)
+        public async Task<SpectacleDto> CreateAsync(CreateSpectacleCommand model, Admin admin)
         {
             var data = _mapper.Map<Spectacle>(model);
             data.AdminId = admin.Id;
@@ -47,9 +48,7 @@ namespace BoxOffice.Core.Services.Implementations
 
         public Task<SpectacleDto> GetById(int id)
         {
-            var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);
-            if (result == null)
-                throw new AppException($"Model with id {id} does not exist.");
+            var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);           
             return Task.FromResult(_mapper.Map<SpectacleDto>(result));
         }
 
@@ -63,7 +62,7 @@ namespace BoxOffice.Core.Services.Implementations
             return "The model has been removed.";
         }
 
-        public async Task<SpectacleDto> UpdateAsync(SpectacleDto model)
+        public async Task<SpectacleDto> UpdateAsync(UpdateSpectacleCommand model)
         {
             var data = _context.Spectacles.Include(x => x.Tickets).FirstOrDefault(x => x.Id == model.Id);
 
