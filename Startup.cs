@@ -20,6 +20,10 @@ using FluentValidation.AspNetCore;
 using BoxOffice.Core.Data.Validators;
 using MediatR;
 using System.Reflection;
+using BoxOffice.Core.PipelineBehaviors;
+using FluentValidation;
+using BoxOffice.Settings;
+using Microsoft.Extensions.Logging;
 
 namespace BoxOffice
 {
@@ -37,19 +41,27 @@ namespace BoxOffice
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
-            services.AddAutoMapper(typeof(MappingEntity));
-            services.AddFluentValidation(config =>
-            {
-                config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
-                config.RegisterValidatorsFromAssemblyContaining<UpdateSpectacleValidator>();
-            });
-            services.AddHttpContextAccessor();
+            services.AddDistributedMemoryCache();
+            services.Configure<CacheSettings>(Configuration.GetSection("CacheSettings"));
+            services.AddLogging();
+
             services.AddMediatR(Assembly.GetExecutingAssembly());
+            services.AddHttpContextAccessor();
+            services.AddAutoMapper(typeof(MappingEntity));
+            services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
+            //services.AddFluentValidation(config =>
+            //{
+            //    config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
+            //    config.RegisterValidatorsFromAssemblyContaining<UpdateSpectacleValidator>();
+            //});
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddSingleton<ITokenProvider, TokenProvider>();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviors<,>));
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingBehavior<,>));
 
             services.AddControllers()
              .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);

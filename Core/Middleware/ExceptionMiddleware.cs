@@ -1,4 +1,5 @@
 ﻿using BoxOffice.Core.Shared;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -26,6 +27,13 @@ namespace BoxOffice.Core.Middleware
                 await _next.Invoke(httpContext);
             }
             catch (AppException ex)
+            {
+                httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
+                await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
+                _logger.LogError(ex.Message);
+                return;
+            }
+            catch (ValidationException ex)
             {
                 httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await httpContext.Response.WriteAsJsonAsync(new { message = ex.Message });
