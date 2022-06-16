@@ -1,11 +1,11 @@
 ﻿using BoxOffice.Core.Dto;
-using BoxOffice.Core.Queries;
+using BoxOffice.Core.MediatR.Queries.Spectacle;
 using BoxOffice.Core.Services.Interfaces;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BoxOffice.Core.Handlers
+namespace BoxOffice.Core.MediatR.Handlers.Spectacle
 {
     public class GetSpectacleByIdHandler : IRequestHandler<GetSpectacleByIdQuery, SpectacleDto>
     {

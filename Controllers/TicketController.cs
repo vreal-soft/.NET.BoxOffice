@@ -1,6 +1,8 @@
 ﻿using BoxOffice.Core.Data;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Queries.Ticket;
 using BoxOffice.Core.Services.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,24 +15,26 @@ namespace BoxOffice.Controllers
     public class TicketController : BaseController
     {
         private readonly ITicketService _service;
+        private readonly IMediator _mediator;
 
-        public TicketController(ITicketService service, IHttpContextAccessor accessor, AppDbContext context) : base(accessor, context)
+        public TicketController(ITicketService service, IHttpContextAccessor accessor, AppDbContext context, IMediator mediator) : base(accessor, context)
         {
             _service = service;
+            _mediator = mediator;
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _service.GetAll());
+            return Ok(await _mediator.Send(new GetAllTicketsQuery()));
         }
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            return Ok(await _service.GetById(id));
+            return Ok(await _mediator.Send(new GetTicketByIdQuery(id)));
         }
 
         [AllowAnonymous]

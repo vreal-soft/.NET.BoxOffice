@@ -2,7 +2,7 @@
 
 namespace BoxOffice.Core.Dto
 {
-    public class SpectacleDto 
+    public class SpectacleDto
     {
         [Sieve(CanFilter = true, CanSort = true)]
         public int Id { get; set; }

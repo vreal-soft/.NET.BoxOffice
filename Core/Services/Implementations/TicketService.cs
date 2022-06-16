@@ -6,6 +6,7 @@ using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,13 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IDistributedCache _cache;
 
-        public TicketService(AppDbContext context, IMapper mapper)
+        public TicketService(AppDbContext context, IMapper mapper, IDistributedCache cache)
         {
             _context = context;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public Task<FreePlace> GetFreePlaces(int spectacleId)
@@ -61,7 +64,6 @@ namespace BoxOffice.Core.Services.Implementations
             return Task.FromResult(_mapper.Map<TicketDto>(ticket));
         }
 
-
         public async Task<TicketDto> BuyAsync(BuyTicket model, Client client)
         {
             var spectacle = _context.Spectacles.Include(x => x.Tickets).FirstOrDefault(x => x.Id == model.SpectacleId);
@@ -79,11 +81,11 @@ namespace BoxOffice.Core.Services.Implementations
             };
             var result = _context.Tickets.Add(newTicket);
             await _context.SaveChangesAsync();
-
+            await _cache.RemoveAsync("TicketList");
             return _mapper.Map<TicketDto>(result.Entity);
         }
 
-        public Task<string> Refund(int ticketId, Client client)
+        public async Task<string> Refund(int ticketId, Client client)
         {
             var ticket = _context.Tickets.FirstOrDefault(x => x.Id == ticketId);
             if (ticket.ClientId != client.Id)
@@ -91,8 +93,8 @@ namespace BoxOffice.Core.Services.Implementations
 
             _context.Tickets.Remove(ticket);
             _context.SaveChanges();
-
-            return Task.FromResult("The ticket has been successfully returned to the ticket office.");
+            await _cache.RemoveAsync("TicketList");
+            return "The ticket has been successfully returned to the ticket office.";
         }
 
         private static FreePlace FindAvailablePlaces(Spectacle spectacle, int[] soldTickets)

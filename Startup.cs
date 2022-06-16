@@ -1,9 +1,13 @@
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Mapper;
 using BoxOffice.Core.Middleware;
+using BoxOffice.Core.PipelineBehaviors;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using BoxOffice.Settings;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -15,15 +19,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sieve.Services;
 using System;
-using System.Text;
-using FluentValidation.AspNetCore;
-using BoxOffice.Core.Data.Validators;
-using MediatR;
 using System.Reflection;
-using BoxOffice.Core.PipelineBehaviors;
-using FluentValidation;
-using BoxOffice.Settings;
-using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace BoxOffice
 {
@@ -49,11 +46,7 @@ namespace BoxOffice
             services.AddHttpContextAccessor();
             services.AddAutoMapper(typeof(MappingEntity));
             services.AddValidatorsFromAssembly(typeof(Startup).Assembly);
-            //services.AddFluentValidation(config =>
-            //{
-            //    config.RegisterValidatorsFromAssemblyContaining<CreateSpectacleValidator>();
-            //    config.RegisterValidatorsFromAssemblyContaining<UpdateSpectacleValidator>();
-            //});
+
             services.AddScoped<SieveProcessor>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<ISpectacleService, SpectacleService>();

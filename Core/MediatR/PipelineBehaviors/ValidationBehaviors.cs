@@ -1,5 +1,4 @@
-﻿using BoxOffice.Core.Shared;
-using FluentValidation;
+﻿using FluentValidation;
 using MediatR;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,10 +20,10 @@ namespace BoxOffice.Core.PipelineBehaviors
         public Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
             var context = new ValidationContext<TRequest>(request);
-            var errors = _validators.Select(x => x.Validate(context)).SelectMany(x=>x.Errors).Where(x=>x != null).ToList();
+            var errors = _validators.Select(x => x.Validate(context)).SelectMany(x => x.Errors).Where(x => x != null).ToList();
 
-            if (errors.Any())            
-                throw new ValidationException(errors);            
+            if (errors.Any())
+                throw new ValidationException(errors);
 
             return next();
         }

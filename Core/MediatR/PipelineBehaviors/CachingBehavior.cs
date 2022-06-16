@@ -1,4 +1,4 @@
-﻿using BoxOffice.Core.Queries;
+﻿using BoxOffice.Core.MediatR.Queries.Spectacle;
 using BoxOffice.Settings;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace BoxOffice.Core.PipelineBehaviors
 {
-    public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> 
+    public class CachingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : ICacheableMediatrQuery<TResponse>
     {
         private readonly IDistributedCache _cache;
@@ -27,8 +27,8 @@ namespace BoxOffice.Core.PipelineBehaviors
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
-        {            
-            if (request.BypassCache) 
+        {
+            if (request.BypassCache)
                 return await next();
             TResponse response = default(TResponse);
             var cachedResponse = await _cache.GetAsync(request.CacheKey, cancellationToken);

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BoxOffice.Core.Handlers
+namespace BoxOffice.Core.MediatR.Handlers.Spectacle
 {
     public class UpdateSpectacleHandler : IRequestHandler<UpdateSpectacleCommand, SpectacleDto>
     {

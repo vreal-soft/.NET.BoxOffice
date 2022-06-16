@@ -1,8 +1,7 @@
 ﻿using BoxOffice.Core.Commands;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Dto;
-using BoxOffice.Core.Queries;
-using BoxOffice.Core.Services.Interfaces;
+using BoxOffice.Core.MediatR.Queries.Spectacle;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;

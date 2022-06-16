@@ -1,11 +1,10 @@
 ﻿using BoxOffice.Core.Commands;
-using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BoxOffice.Core.Handlers
+namespace BoxOffice.Core.MediatR.Handlers.Spectacle
 {
     public class RemoveSpectacleHandler : IRequestHandler<RemoveSpectacleCommand, string>
     {

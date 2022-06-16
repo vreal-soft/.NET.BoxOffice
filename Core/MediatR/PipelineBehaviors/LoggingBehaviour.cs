@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
@@ -24,11 +23,11 @@ namespace BoxOffice.Core.PipelineBehaviors
             //Request
             _logger.LogInformation($"Handling {typeof(TRequest).Name}");
             IList<PropertyInfo> props = new List<PropertyInfo>(request.GetType().GetProperties());
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
             foreach (PropertyInfo prop in props)
             {
                 object propValue = prop.GetValue(request, null);
-                sb.AppendLine($"{prop.Name} : {propValue}");               
+                sb.AppendLine($"{prop.Name} : {propValue}");
             }
             _logger.LogInformation(sb.ToString());
             var response = await next();

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace BoxOffice.Core.Queries
+namespace BoxOffice.Core.MediatR.Queries.Spectacle
 {
     public interface ICacheableMediatrQuery<T> : IRequest<T>
     {

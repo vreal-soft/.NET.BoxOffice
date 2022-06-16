@@ -6,6 +6,7 @@ using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,11 +17,13 @@ namespace BoxOffice.Core.Services.Implementations
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IDistributedCache _cache;
 
-        public SpectacleService(AppDbContext context, IMapper mapper)
+        public SpectacleService(AppDbContext context, IMapper mapper, IDistributedCache cache)
         {
             _context = context;
             _mapper = mapper;
+            _cache = cache;
         }
 
         public async Task<SpectacleDto> CreateAsync(CreateSpectacleCommand model, Admin admin)
@@ -37,6 +40,7 @@ namespace BoxOffice.Core.Services.Implementations
 
             var result = _context.Spectacles.Add(data);
             await _context.SaveChangesAsync();
+            await _cache.RemoveAsync("SpectacleList");
             return _mapper.Map<SpectacleDto>(result.Entity);
         }
 
@@ -48,7 +52,7 @@ namespace BoxOffice.Core.Services.Implementations
 
         public Task<SpectacleDto> GetById(int id)
         {
-            var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);           
+            var result = _context.Spectacles.FirstOrDefault(x => x.Id == id);
             return Task.FromResult(_mapper.Map<SpectacleDto>(result));
         }
 
@@ -59,6 +63,8 @@ namespace BoxOffice.Core.Services.Implementations
                 throw new AppException($"Model with id {id} does not exist.");
             _context.Spectacles.Remove(result);
             await _context.SaveChangesAsync();
+            await _cache.RemoveAsync("SpectacleList");
+            await _cache.RemoveAsync($"Spectacle-{id}");
             return "The model has been removed.";
         }
 
@@ -73,6 +79,8 @@ namespace BoxOffice.Core.Services.Implementations
 
             data = _mapper.Map(model, data);
             await _context.SaveChangesAsync();
+            await _cache.RemoveAsync("SpectacleList");
+            await _cache.RemoveAsync($"Spectacle-{model.Id}");
             return _mapper.Map<SpectacleDto>(data);
         }
     }
