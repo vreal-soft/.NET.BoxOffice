@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace BoxOffice.Core.Commands
+namespace BoxOffice.Core.MediatR.Commands.Spectacle
 {
     public class RemoveSpectacleCommand : IRequest<string>
     {

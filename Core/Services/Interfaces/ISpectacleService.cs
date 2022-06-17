@@ -1,6 +1,6 @@
-﻿using BoxOffice.Core.Commands;
-using BoxOffice.Core.Data.Entities;
+﻿using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Spectacle;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

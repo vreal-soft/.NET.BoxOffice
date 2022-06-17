@@ -1,6 +1,6 @@
-﻿using BoxOffice.Core.Commands;
-using BoxOffice.Core.Data;
+﻿using BoxOffice.Core.Data;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Spectacle;
 using BoxOffice.Core.MediatR.Queries.Spectacle;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

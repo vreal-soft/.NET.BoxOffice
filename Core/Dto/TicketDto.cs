@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using MediatR;
+using System.Collections.Generic;
 
 namespace BoxOffice.Core.Dto
 {
@@ -24,11 +25,5 @@ namespace BoxOffice.Core.Dto
             Seats = new List<int>();
         }
         public IList<int> Seats { get; set; }
-    }
-
-    public class BuyTicket
-    {
-        public int SpectacleId { get; set; }
-        public int Seat { get; set; }
     }
 }

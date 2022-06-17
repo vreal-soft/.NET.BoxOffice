@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Ticket;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;
@@ -64,7 +65,7 @@ namespace BoxOffice.Core.Services.Implementations
             return Task.FromResult(_mapper.Map<TicketDto>(ticket));
         }
 
-        public async Task<TicketDto> BuyAsync(BuyTicket model, Client client)
+        public async Task<TicketDto> BuyAsync(CreateTicketCommand model, Client client)
         {
             var spectacle = _context.Spectacles.Include(x => x.Tickets).FirstOrDefault(x => x.Id == model.SpectacleId);
 

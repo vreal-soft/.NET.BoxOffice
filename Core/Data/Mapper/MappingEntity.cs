@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using BoxOffice.Core.Commands;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Spectacle;
 
 namespace BoxOffice.Core.Data.Mapper
 {

@@ -1,5 +1,6 @@
 ﻿using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Ticket;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,7 +13,7 @@ namespace BoxOffice.Core.Services.Interfaces
         Task<List<TicketDto>> GetAllInClient(Client client);
         Task<TicketDto> GetById(int id);
         Task<List<TicketDto>> GetAll();
-        Task<TicketDto> BuyAsync(BuyTicket model, Client client);
+        Task<TicketDto> BuyAsync(CreateTicketCommand model, Client client);
         Task<string> Refund(int ticketId, Client client);
     }
 }

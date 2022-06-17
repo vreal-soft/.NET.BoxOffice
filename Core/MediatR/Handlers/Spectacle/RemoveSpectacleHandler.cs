@@ -1,4 +1,4 @@
-﻿using BoxOffice.Core.Commands;
+﻿using BoxOffice.Core.MediatR.Commands.Spectacle;
 using BoxOffice.Core.Services.Interfaces;
 using MediatR;
 using System.Threading;

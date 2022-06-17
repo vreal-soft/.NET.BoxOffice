@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using BoxOffice.Core.Commands;
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Entities;
 using BoxOffice.Core.Dto;
+using BoxOffice.Core.MediatR.Commands.Spectacle;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Shared;
 using Microsoft.EntityFrameworkCore;

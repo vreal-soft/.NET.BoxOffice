@@ -1,4 +1,4 @@
-﻿using BoxOffice.Core.Commands;
+﻿using BoxOffice.Core.MediatR.Commands.Spectacle;
 using FluentValidation;
 
 namespace BoxOffice.Core.Data.Validators
