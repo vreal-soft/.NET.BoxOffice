@@ -8,8 +8,8 @@ namespace BoxOffice.Core.Data.Validators
         public CreateSpectacleValidator()
         {
             RuleFor(x => x.StartTime)
-                .NotNull().GreaterThan((ulong)0).WithMessage("Please input start time.");   
-            
+                .NotNull().GreaterThan((ulong)0).WithMessage("Please input start time.");
+
             RuleFor(x => x.EndTime)
                 .NotNull().GreaterThan((ulong)0).WithMessage("Please input start time.");
 
@@ -19,8 +19,8 @@ namespace BoxOffice.Core.Data.Validators
             RuleFor(x => x).Must(x => x.StartTime < x.EndTime)
                 .WithMessage("The time is incorrect.");
         }
-    }  
-    
+    }
+
     public class SpectacleDtoValidator : AbstractValidator<SpectacleDto>
     {
         public SpectacleDtoValidator()

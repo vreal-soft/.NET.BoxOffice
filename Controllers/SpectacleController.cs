@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sieve.Models;
 using Sieve.Services;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,10 +41,44 @@ namespace BoxOffice.Controllers
             return Ok(await _service.GetById(id));
         }
 
+        [AllowAnonymous]
+        [HttpGet("file/csv")]
+        public async Task<IActionResult> GetCsvFile()
+        {
+            return File(await _service.CreateCsvFileAsync(),
+                        "text/csv",
+                        $"spectacle_db_{DateTime.Now.ToString("yyyy/MM/dd")}.csv"
+                        );
+        } 
+        
+        [AllowAnonymous]
+        [HttpGet("file/xml")]
+        public async Task<IActionResult> GetXmlFile()
+        {
+            return File(await _service.CreateXmlFileAsync(),
+                        "text/csv",
+                        $"spectacle_db_{DateTime.Now.ToString("yyyy/MM/dd")}.csv"
+                        );
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateSpectacle model)
         {
             return Ok(await _service.CreateAsync(model, GetCurrentAdmin()));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("from-csv")]
+        public async Task<IActionResult> CreateFromCsv(IFormFile file)
+        {
+            return Ok(await _service.CreateFromCsv(file, GetCurrentAdmin()));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("from-csv")]
+        public async Task<IActionResult> CreateFromXml(IFormFile file)
+        {
+            return Ok(await _service.CreateFromXml(file, GetCurrentAdmin()));
         }
 
         [HttpPut]
