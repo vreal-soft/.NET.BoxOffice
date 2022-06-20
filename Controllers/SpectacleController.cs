@@ -47,17 +47,17 @@ namespace BoxOffice.Controllers
         {
             return File(await _service.CreateCsvFileAsync(),
                         "text/csv",
-                        $"spectacle_db_{DateTime.Now.ToString("yyyy/MM/dd")}.csv"
+                        $"spectacle_db_{DateTime.Now:yyyy/MM/dd}.csv"
                         );
-        } 
-        
+        }
+
         [AllowAnonymous]
         [HttpGet("file/xml")]
         public async Task<IActionResult> GetXmlFile()
         {
             return File(await _service.CreateXmlFileAsync(),
                         "text/csv",
-                        $"spectacle_db_{DateTime.Now.ToString("yyyy/MM/dd")}.csv"
+                        $"spectacle_db_{DateTime.Now:yyyy/MM/dd}.csv"
                         );
         }
 
@@ -75,7 +75,7 @@ namespace BoxOffice.Controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("from-csv")]
+        [HttpPost("from-xml")]
         public async Task<IActionResult> CreateFromXml(IFormFile file)
         {
             return Ok(await _service.CreateFromXml(file, GetCurrentAdmin()));

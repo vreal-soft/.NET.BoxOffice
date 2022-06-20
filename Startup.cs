@@ -4,7 +4,9 @@ using BoxOffice.Core.Data.Validators;
 using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
+using BoxOffice.Core.Services.Jobs;
 using BoxOffice.Core.Services.Provaiders;
+
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -103,6 +105,11 @@ namespace BoxOffice
                        Array.Empty<string>()
                       }
                  });
+            });
+
+            services.AddCronJob<MyCronJob>(c =>
+            {
+                c.CronExpression = "*/1 * * * *";
             });
         }
 

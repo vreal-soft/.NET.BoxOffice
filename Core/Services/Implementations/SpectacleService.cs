@@ -50,19 +50,15 @@ namespace BoxOffice.Core.Services.Implementations
         {
             var list = _mapper.Map<List<CreateSpectacle>>(_context.Spectacles);
 
-            using (var stream = new MemoryStream())
+            using var stream = new MemoryStream();
+            using (var writer = new StreamWriter(stream, Encoding.UTF8))
             {
-                using (var writer = new StreamWriter(stream, Encoding.UTF8))
-                {
-                    using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
-                    {
-                        csv.WriteRecords(list);
-                        writer.Flush();
-                    }
-                }
-
-                return new MemoryStream(stream.ToArray());
+                using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+                csv.WriteRecords(list);
+                writer.Flush();
             }
+
+            return new MemoryStream(stream.ToArray());
         }
 
         public Task<Stream> CreateXmlFileAsync()
