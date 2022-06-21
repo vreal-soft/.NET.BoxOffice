@@ -18,6 +18,8 @@ using System;
 using System.Text;
 using FluentValidation.AspNetCore;
 using BoxOffice.Core.Data.Validators;
+using Microsoft.Extensions.Options;
+using BoxOffice.Core.Data.Settings;
 
 namespace BoxOffice
 {
@@ -35,6 +37,13 @@ namespace BoxOffice
         {
             string connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
+
+            services.Configure<SpectacleDatabaseSettings>(
+               Configuration.GetSection(nameof(SpectacleDatabaseSettings)));
+
+            services.AddSingleton(sp =>
+                sp.GetRequiredService<IOptions<SpectacleDatabaseSettings>>().Value);
+
             services.AddAutoMapper(typeof(MappingEntity));
             services.AddFluentValidation(config =>
             {

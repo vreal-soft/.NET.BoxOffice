@@ -6,10 +6,8 @@
 
         public int Seat { get; set; }
 
-        public int ClientId { get; set; }
-        public Client Client { get; set; }
+        public int ClientId { get; set; }    
 
-        public int SpectacleId { get; set; }
-        public Spectacle Spectacle { get; set; }
+        public int SpectacleId { get; set; }     
     }
 }

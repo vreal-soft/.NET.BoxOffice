@@ -35,7 +35,7 @@ namespace BoxOffice.Controllers
 
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             return Ok(await _service.GetById(id));
         }
@@ -43,7 +43,8 @@ namespace BoxOffice.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateSpectacle model)
         {
-            return Ok(await _service.CreateAsync(model, GetCurrentAdmin()));
+            await _service.CreateAsync(model, GetCurrentAdmin());
+            return Ok();
         }
 
         [HttpPut]
@@ -53,7 +54,7 @@ namespace BoxOffice.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Remove([FromRoute] int id)
+        public async Task<IActionResult> Remove([FromRoute] string id)
         {
             return Ok(new { result = await _service.RemoveAsync(id) });
         }

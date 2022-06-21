@@ -35,7 +35,7 @@ namespace BoxOffice.Controllers
 
         [AllowAnonymous]
         [HttpGet("free-places/{spectacleId}")]
-        public async Task<IActionResult> GetFreePlaces([FromRoute] int spectacleId)
+        public async Task<IActionResult> GetFreePlaces([FromRoute] string spectacleId)
         {
             return Ok(await _service.GetFreePlaces(spectacleId));
         }

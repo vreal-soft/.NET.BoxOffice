@@ -23,12 +23,12 @@ namespace BoxOffice.Core.Data.Mapper
             //    .ForMember(x => x.SpectacleStartTime, opt => opt.MapFrom(src => src.Spectacle.StartTime))
             //    .ForMember(x => x.SpectacleEndTime, opt => opt.MapFrom(src => src.Spectacle.EndTime));
 
-            CreateMap<Ticket, TicketDto>()
-                .ForMember(dto => dto.ClientFullName, conf => conf.MapFrom(src => $"{src.Client.FirstName} {src.Client.LastName}"))
-                .ForMember(dto => dto.SpectacleName, conf => conf.MapFrom(src => src.Spectacle.Name))
-                .ForMember(dto => dto.SpectacleStartTime, conf => conf.MapFrom(src => src.Spectacle.StartTime))
-                .ForMember(dto => dto.SpectacleEndTime, conf => conf.MapFrom(src => src.Spectacle.EndTime))
-                ;
+            //CreateMap<Ticket, TicketDto>()
+            //    .ForMember(dto => dto.ClientFullName, conf => conf.MapFrom(src => $"{src.Client.FirstName} {src.Client.LastName}"))
+            //    .ForMember(dto => dto.SpectacleName, conf => conf.MapFrom(src => src.Spectacle.Name))
+            //    .ForMember(dto => dto.SpectacleStartTime, conf => conf.MapFrom(src => src.Spectacle.StartTime))
+            //    .ForMember(dto => dto.SpectacleEndTime, conf => conf.MapFrom(src => src.Spectacle.EndTime))
+            //    ;
         }
     }
 }

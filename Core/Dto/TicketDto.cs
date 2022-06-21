@@ -28,7 +28,7 @@ namespace BoxOffice.Core.Dto
 
     public class BuyTicket
     {
-        public int SpectacleId { get; set; }
+        public string SpectacleId { get; set; }
         public int Seat { get; set; }
     }
 }

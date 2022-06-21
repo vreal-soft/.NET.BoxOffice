@@ -8,7 +8,7 @@ namespace BoxOffice.Core.Services.Interfaces
     public interface ITicketService
     {
         Task<List<TicketDto>> GetAllInSpectacle(int spectacleId);
-        Task<FreePlace> GetFreePlaces(int spectacleId);
+        Task<FreePlace> GetFreePlaces(string spectacleId);
         Task<List<TicketDto>> GetAllInClient(Client client);
         Task<TicketDto> GetById(int id);
         Task<List<TicketDto>> GetAll();

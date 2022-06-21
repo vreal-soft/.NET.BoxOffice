@@ -5,7 +5,7 @@ namespace BoxOffice.Core.Dto
     public class SpectacleDto
     {
         [Sieve(CanFilter = true, CanSort = true)]
-        public int Id { get; set; }
+        public string Id { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
         public string Name { get; set; }
         [Sieve(CanFilter = true, CanSort = true)]
