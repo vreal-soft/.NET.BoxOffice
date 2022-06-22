@@ -19,7 +19,8 @@ namespace BoxOffice.Controllers
         [HttpPost("client-registration")]
         public async Task<IActionResult> ClientRegistration(Registration model)
         {
-            return Ok(await _service.ClientRegistrationAsync(model));
+            await _service.ClientRegistrationAsync(model);
+            return Ok();
         }
 
         [HttpPost("client-login")]
@@ -31,7 +32,8 @@ namespace BoxOffice.Controllers
         [HttpPost("admin-registration")]
         public async Task<IActionResult> AdminRegistration(Registration model)
         {
-            return Ok(await _service.AdminRegistrationAsync(model));
+            await _service.AdminRegistrationAsync(model);
+            return Ok();
         }
 
         [HttpPost("admin-login")]

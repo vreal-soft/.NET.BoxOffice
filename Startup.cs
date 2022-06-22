@@ -1,9 +1,12 @@
 using BoxOffice.Core.Data;
 using BoxOffice.Core.Data.Mapper;
+using BoxOffice.Core.Data.Settings;
+using BoxOffice.Core.Data.Validators;
 using BoxOffice.Core.Middleware;
 using BoxOffice.Core.Services.Implementations;
 using BoxOffice.Core.Services.Interfaces;
 using BoxOffice.Core.Services.Provaiders;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,15 +14,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sieve.Services;
 using System;
 using System.Text;
-using FluentValidation.AspNetCore;
-using BoxOffice.Core.Data.Validators;
-using Microsoft.Extensions.Options;
-using BoxOffice.Core.Data.Settings;
 
 namespace BoxOffice
 {
@@ -34,15 +34,9 @@ namespace BoxOffice
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
-            string connection = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection));
-
+        {         
             services.Configure<SpectacleDatabaseSettings>(
                Configuration.GetSection(nameof(SpectacleDatabaseSettings)));
-
-            services.AddSingleton(sp =>
-                sp.GetRequiredService<IOptions<SpectacleDatabaseSettings>>().Value);
 
             services.AddAutoMapper(typeof(MappingEntity));
             services.AddFluentValidation(config =>
@@ -56,6 +50,8 @@ namespace BoxOffice
             services.AddScoped<ISpectacleService, SpectacleService>();
             services.AddScoped<ITicketService, TicketService>();
             services.AddSingleton<ITokenProvider, TokenProvider>();
+            services.AddSingleton(sp =>
+                sp.GetRequiredService<IOptions<SpectacleDatabaseSettings>>().Value);
 
             services.AddControllers()
              .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore).AddFluentValidation(config =>

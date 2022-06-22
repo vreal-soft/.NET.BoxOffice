@@ -1,13 +1,20 @@
-﻿namespace BoxOffice.Core.Data.Entities
+﻿using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+
+namespace BoxOffice.Core.Data.Entities
 {
     public class Ticket
     {
-        public int Id { get; set; }
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        public string Id { get; set; }
 
         public int Seat { get; set; }
 
-        public int ClientId { get; set; }    
+        public string ClientId { get; set; }
+        public Client Client { get; set; }
 
-        public int SpectacleId { get; set; }     
+        public string SpectacleId { get; set; }
+        public Spectacle Spectacle { get; set; }
     }
 }

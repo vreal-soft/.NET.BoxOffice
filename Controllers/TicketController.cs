@@ -1,4 +1,5 @@
 ﻿using BoxOffice.Core.Data;
+using BoxOffice.Core.Data.Settings;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,7 @@ namespace BoxOffice.Controllers
     {
         private readonly ITicketService _service;
 
-        public TicketController(ITicketService service, IHttpContextAccessor accessor, AppDbContext context) : base(accessor, context)
+        public TicketController(ITicketService service, IHttpContextAccessor accessor, SpectacleDatabaseSettings settings) : base(accessor, settings)
         {
             _service = service;
         }
@@ -28,7 +29,7 @@ namespace BoxOffice.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             return Ok(await _service.GetById(id));
         }
@@ -49,7 +50,7 @@ namespace BoxOffice.Controllers
 
         [Authorize(Roles = "Admin")]
         [HttpGet("spectacle/{spectacleId}")]
-        public async Task<IActionResult> GetAllInSpectacle([FromRoute] int spectacleId)
+        public async Task<IActionResult> GetAllInSpectacle([FromRoute] string spectacleId)
         {
             return Ok(await _service.GetAllInSpectacle(spectacleId));
         }
@@ -58,12 +59,13 @@ namespace BoxOffice.Controllers
         [HttpPost]
         public async Task<IActionResult> Buy(BuyTicket model)
         {
-            return Ok(await _service.BuyAsync(model, GetCurrentClient()));
+            await _service.BuyAsync(model, GetCurrentClient());
+            return Ok();
         }
 
         [Authorize(Roles = "Client")]
         [HttpPut("refund/{ticketId}")]
-        public async Task<IActionResult> Refund([FromRoute] int ticketId)
+        public async Task<IActionResult> Refund([FromRoute] string ticketId)
         {
             return Ok(new { result = await _service.Refund(ticketId, GetCurrentClient()) });
         }

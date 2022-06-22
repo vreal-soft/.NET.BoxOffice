@@ -1,4 +1,5 @@
 ﻿using BoxOffice.Core.Data;
+using BoxOffice.Core.Data.Settings;
 using BoxOffice.Core.Dto;
 using BoxOffice.Core.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -19,7 +20,7 @@ namespace BoxOffice.Controllers
         private readonly ISpectacleService _service;
         private readonly SieveProcessor _sieveProcessor;
 
-        public SpectacleController(ISpectacleService service, SieveProcessor sieveProcessor, IHttpContextAccessor accessor, AppDbContext context) : base(accessor, context)
+        public SpectacleController(ISpectacleService service, SieveProcessor sieveProcessor, IHttpContextAccessor accessor, SpectacleDatabaseSettings settings) : base(accessor, settings)
         {
             _service = service;
             _sieveProcessor = sieveProcessor;
